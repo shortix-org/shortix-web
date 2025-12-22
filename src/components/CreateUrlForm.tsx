@@ -20,7 +20,7 @@ export default function CreateUrlForm({ onSuccess }: CreateUrlFormProps) {
     setError('');
 
     try {
-      await api.post('/urls', { original_url: url });
+      await api.post('/urls', { url });
       setUrl('');
       onSuccess();
     } catch (err: any) {
