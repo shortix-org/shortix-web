@@ -35,7 +35,7 @@ I have implemented the **Shortix Web Frontend** (`shortix-web`) using React, Typ
 #### [NEW] [01-networking.yaml](file:///Users/tamnguyen/develop/personal-github/shortix/shortix-infra/01-networking.yaml)
 - **VPC**: `10.0.0.0/16`
 - **Subnets**: 2 Public, 2 Private
-- **Gateways**: Internet Gateway, NAT Gateway (Single)
+- **Gateways**: Internet Gateway, VPC Gateway Endpoints (DynamoDB, S3)
 - **Exports**: `VpcId`, `PublicSubnetIds`, `PrivateSubnetIds`
 
 #### [NEW] [02-persistence-auth.yaml](file:///Users/tamnguyen/develop/personal-github/shortix/shortix-infra/02-persistence-auth.yaml)
