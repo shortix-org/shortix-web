@@ -2,14 +2,19 @@
 
 This repository uses GitHub Actions for automated deployment.
 
-### GitHub Secrets Required
-
-Configure the following secrets in your GitHub repository settings:
+### Required GitHub Secrets
 
 | Secret | Description |
 |---|---|
 | `AWS_ACCESS_KEY_ID` | AWS IAM Access Key ID |
 | `AWS_SECRET_ACCESS_KEY` | AWS IAM Secret Access Key |
+
+### Required GitHub Variables (Environment-specific)
+
+These can be configured per environment (dev, staging, prod) in **Settings** -> **Environments**.
+
+| Variable | Description |
+|---|---|
 | `AWS_REGION` | e.g., `us-east-1` |
 | `S3_WEBSITE_BUCKET` | The S3 bucket name for web hosting |
 | `CLOUDFRONT_DISTRIBUTION_ID` | The ID of the CloudFront distribution to invalidate |

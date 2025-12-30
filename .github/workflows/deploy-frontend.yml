@@ -11,6 +11,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -32,25 +33,12 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Sync to S3
         run: |
-          # Use dynamic bucket suffix or separate secret per environment
-          # Option A: S3_WEBSITE_BUCKET_DEV, S3_WEBSITE_BUCKET_PROD
-          # Option B: One secret that we pick based on env
-          BUCKET_SECRET_NAME="S3_WEBSITE_BUCKET_${{ github.event.inputs.environment }}"
-          # Convert to uppercase
-          BUCKET_SECRET_NAME=$(echo $BUCKET_SECRET_NAME | tr '[:lower:]' '[:upper:]')
-          # Get value from secrets
-          BUCKET_NAME="${{ secrets[BUCKET_SECRET_NAME] }}"
-          
-          aws s3 sync dist/ s3://$BUCKET_NAME --delete
+          aws s3 sync dist/ s3://${{ vars.S3_WEBSITE_BUCKET }} --delete
 
       - name: Invalidate CloudFront
         run: |
-          CF_DIST_SECRET_NAME="CLOUDFRONT_DISTRIBUTION_ID_${{ github.event.inputs.environment }}"
-          CF_DIST_SECRET_NAME=$(echo $CF_DIST_SECRET_NAME | tr '[:lower:]' '[:upper:]')
-          CF_DIST_ID="${{ secrets[CF_DIST_SECRET_NAME] }}"
-          
-          aws cloudfront create-invalidation --distribution-id $CF_DIST_ID --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
