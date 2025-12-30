@@ -7,10 +7,7 @@ on:
         description: 'Environment to deploy to (dev, staging, prod)'
         required: true
         default: 'prod'
-      infra_branch:
-        description: 'Branch of shortix-infra to use'
-        required: true
-        default: 'main'
+
 
 jobs:
   deploy:
@@ -22,13 +19,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Checkout Infra Templates
-        uses: actions/checkout@v4
-        with:
-          repository: shortix-org/shortix-infra
-          path: infra
-          ref: ${{ github.event.inputs.infra_branch }}
-          token: ${{ secrets.GH_PAT }}
+
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -49,14 +40,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Deploy Persistence & Auth Stack
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
-        with:
-          name: shortix-persistence-${{ github.event.inputs.environment }}
-          template: infra/02-persistence-auth.yaml
-          no-fail-on-empty-changeset: "1"
-          parameter-overrides: >-
-            Environment=${{ github.event.inputs.environment }}
+
 
       - name: Fetch Frontend Resources
         id: fetch-resources
