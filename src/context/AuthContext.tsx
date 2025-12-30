@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, type ReactNode } from 'react';
-import { CognitoUserPool, CognitoUser, AuthenticationDetails, CognitoUserSession } from 'amazon-cognito-identity-js';
+import { CognitoUserPool, CognitoUser, AuthenticationDetails, CognitoUserSession, CognitoUserAttribute } from 'amazon-cognito-identity-js';
 
 const poolData = {
   UserPoolId: import.meta.env.VITE_USER_POOL_ID || '',
@@ -79,7 +79,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signup = async (email: string, password: string) => {
     return new Promise<void>((resolve, reject) => {
-      userPool.signUp(email, password, [], [], (err, result) => {
+      const attributeList = [
+        new CognitoUserAttribute({ Name: 'email', Value: email }),
+      ];
+
+      userPool.signUp(email, password, attributeList, [], (err, _result) => {
         if (err) {
           reject(err);
         } else {
