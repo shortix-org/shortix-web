@@ -24,8 +24,8 @@ export default function Register() {
 
     try {
       await signup(email, password);
-      // Cognito often requires confirmation, but for now we redirect to login
-      navigate('/login');
+      // Redirect to verification page
+      navigate('/verify', { state: { email } });
     } catch (err: any) {
       setError(err.message || 'Failed to sign up');
     }

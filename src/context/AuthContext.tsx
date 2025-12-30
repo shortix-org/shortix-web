@@ -15,6 +15,8 @@ interface AuthContextType {
   logout: () => void;
   signup: (email: string, password: string) => Promise<void>;
   getSession: () => Promise<CognitoUserSession>;
+  verifyAccount: (email: string, code: string) => Promise<void>;
+  resendCode: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -93,8 +95,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const verifyAccount = async (email: string, code: string) => {
+    return new Promise<void>((resolve, reject) => {
+      const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
+      cognitoUser.confirmRegistration(code, true, (err: any, result: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  };
+
+  const resendCode = async (email: string) => {
+    return new Promise<void>((resolve, reject) => {
+      const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
+      cognitoUser.resendConfirmationCode((err: any, result: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, signup, getSession }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, signup, getSession, verifyAccount, resendCode }}>
       {children}
     </AuthContext.Provider>
   );
