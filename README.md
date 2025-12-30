@@ -16,8 +16,6 @@ These can be configured per environment (dev, staging, prod) in **Settings** -> 
 | Variable | Description |
 |---|---|
 | `AWS_REGION` | e.g., `us-east-1` |
-| `S3_WEBSITE_BUCKET` | The S3 bucket name for web hosting |
-| `CLOUDFRONT_DISTRIBUTION_ID` | The ID of the CloudFront distribution to invalidate |
 
 ### Manual Trigger
 Go to **Actions** -> **Deploy Frontend** -> **Run workflow**. 
