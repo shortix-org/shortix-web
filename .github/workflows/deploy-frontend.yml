@@ -30,6 +30,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Configure Environment Variables
+        run: |
+          echo "Fetching environment variables from SSM..."
+          VITE_USER_POOL_ID=$(aws ssm get-parameter --name "${{ env.SSM_PREFIX }}/auth/user-pool-id" --query "Parameter.Value" --output text)
+          VITE_CLIENT_ID=$(aws ssm get-parameter --name "${{ env.SSM_PREFIX }}/auth/client-id" --query "Parameter.Value" --output text)
+          VITE_API_URL=$(aws ssm get-parameter --name "${{ env.SSM_PREFIX }}/api/url" --query "Parameter.Value" --output text)
+          
+          echo "VITE_USER_POOL_ID=$VITE_USER_POOL_ID" >> .env
+          echo "VITE_CLIENT_ID=$VITE_CLIENT_ID" >> .env
+          echo "VITE_API_URL=$VITE_API_URL" >> .env
+          
+          echo "Created .env file with fetched variables."
+
       - name: Build Web Assets
         run: npm run build
 
