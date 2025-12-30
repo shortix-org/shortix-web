@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
@@ -10,7 +9,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 interface UrlItem {
   short_code: string;
@@ -19,38 +19,36 @@ interface UrlItem {
   created_at: string;
 }
 
-interface UrlListProps {
-    keyProp: number; // to force refresh
-}
+const API_URL = import.meta.env.VITE_API_URL;
 
-export default function UrlList({ keyProp }: UrlListProps) {
-  const [urls, setUrls] = useState<UrlItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const API_URL = import.meta.env.VITE_API_URL;
-
-  const fetchUrls = async () => {
-    setLoading(true);
-    try {
+export default function UrlList() {
+  const { data: urls = [], isLoading, error } = useQuery({
+    queryKey: ['urls'],
+    queryFn: async () => {
       const response = await api.get('/urls');
-      setUrls(response.data);
-    } catch (error) {
-      console.error('Failed to fetch URLs', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return response.data as UrlItem[];
+    },
+  });
 
-  useEffect(() => {
-    fetchUrls();
-  }, [keyProp]);
+  if (isLoading && urls.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center text-gray-500 flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p>Loading your links...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  if (loading && urls.length === 0) {
-      return (
-          <Card>
-              <CardContent className="p-8 text-center text-gray-500">Loading...</CardContent>
-          </Card>
-      )
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center text-red-500">
+          Failed to load URLs. Please try again later.
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -91,7 +89,7 @@ export default function UrlList({ keyProp }: UrlListProps) {
                   <TableCell>{url.click_count || 0}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" onClick={() => {
-                         navigator.clipboard.writeText(`${API_URL}/${url.short_code}`)
+                      navigator.clipboard.writeText(`${API_URL}/${url.short_code}`)
                     }}>
                       Copy
                     </Button>

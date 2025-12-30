@@ -4,31 +4,40 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 
 interface CreateUrlFormProps {
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export default function CreateUrlForm({ onSuccess }: CreateUrlFormProps) {
   const [url, setUrl] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const queryClient = useQueryClient();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      await api.post('/urls', { url });
+  const mutation = useMutation({
+    mutationFn: async (newUrl: string) => {
+      return api.post('/urls', { url: newUrl });
+    },
+    onSuccess: () => {
       setUrl('');
-      onSuccess();
-    } catch (err: any) {
+      setError('');
+      queryClient.invalidateQueries({ queryKey: ['urls'] });
+      if (onSuccess) {
+        onSuccess();
+      }
+    },
+    onError: (err: Error) => {
       console.error(err);
       setError('Failed to create short URL');
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!url) return;
+    mutation.mutate(url);
   };
 
   return (
@@ -47,10 +56,18 @@ export default function CreateUrlForm({ onSuccess }: CreateUrlFormProps) {
               value={url}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
               required
+              disabled={mutation.isPending}
             />
           </div>
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Shortening...' : 'Shorten'}
+          <Button type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Shortening...
+              </>
+            ) : (
+              'Shorten'
+            )}
           </Button>
         </form>
         {error && <p className="text-sm text-red-500 mt-2">{error}</p>}

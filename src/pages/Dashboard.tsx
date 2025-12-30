@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -8,15 +7,10 @@ import UrlList from '@/components/UrlList';
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  const handleUrlCreated = () => {
-    setRefreshKey((prev) => prev + 1);
   };
 
   return (
@@ -30,9 +24,9 @@ export default function Dashboard() {
             </div>
         </header>
 
-        <CreateUrlForm onSuccess={handleUrlCreated} />
+        <CreateUrlForm />
         
-        <UrlList keyProp={refreshKey} />
+        <UrlList />
       </div>
     </div>
   );
