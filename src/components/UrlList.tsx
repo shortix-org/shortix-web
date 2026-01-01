@@ -17,7 +17,23 @@ interface UrlItem {
   original_url: string;
   click_count: number;
   created_at: string;
+  status: string;
 }
+
+const getStatusBadge = (status: string) => {
+  const s = status?.toUpperCase() || 'UNKNOWN';
+  let classes = 'bg-gray-100 text-gray-800';
+
+  if (s === 'ACTIVE') classes = 'bg-green-100 text-green-800';
+  else if (s === 'PENDING' || s === 'PROCESSING') classes = 'bg-blue-100 text-blue-800';
+  else if (s === 'INACTIVE' || s === 'BANNED' || s === 'FAILED') classes = 'bg-red-100 text-red-800';
+
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${classes}`}>
+      {s}
+    </span>
+  );
+};
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -65,6 +81,7 @@ export default function UrlList() {
               <TableRow>
                 <TableHead>Short Link</TableHead>
                 <TableHead className="hidden md:table-cell">Original URL</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Clicks</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -86,6 +103,7 @@ export default function UrlList() {
                   <TableCell className="hidden md:table-cell truncate max-w-[200px]" title={url.original_url}>
                     {url.original_url}
                   </TableCell>
+                  <TableCell>{getStatusBadge(url.status)}</TableCell>
                   <TableCell>{url.click_count || 0}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" onClick={() => {
